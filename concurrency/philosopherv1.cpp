@@ -20,7 +20,7 @@
 char* lock_state = NULL;
 
 int package_size = 100000;
-int person_count = 1000;
+int person_count = 10;
 
 struct person {
     int index;
@@ -42,34 +42,42 @@ void * job(void * args)
     struct person * philosophier = (struct person *) args;
     int index = philosophier->index;
     pthread_mutex_t** chopsticks = philosophier->chopsticks;
+    pthread_cond_t** conds = philosophier->conds;
 
     while (philosophier->package <= package_size) 
     {
-        pthread_mutex_t* left = chopsticks[index];                 
-        pthread_mutex_lock(left);
-        lock_state[index] = 'L';
 
-        int next_index = (index + 1) % person_count;
-        pthread_mutex_t * right = chopsticks[next_index];
-        int right_state = pthread_mutex_trylock(right);
-        if (right_state == EBUSY)
+        int first = (index + index % 2) % person_count;
+        int second = (first == index ? index + 1 : index) % person_count;
+
+        pthread_mutex_t* left = chopsticks[first];                 
+        pthread_mutex_lock(left);
+        lock_state[first] = 'L';
+
+        pthread_mutex_t * right = chopsticks[second];
+        int second_state = pthread_mutex_trylock(right);
+        if (second_state == EBUSY)
         {
-            lock_state[index] = '0';
+            pthread_mutex_lock(left);
+            lock_state[first] = '0';
             pthread_mutex_unlock(left);
             continue;
         }
-        lock_state[next_index] = 'L';
+
+        lock_state[second] = 'L';
 
         int number = 1;
         int cost = 0;
-        //printf("Philosopher:%d, state:%s, eat:%d, wait:%d\n", index,lock_state, number, cost);
+        printf("Philosopher:%d, state:%s, eat:%d, wait:%d\n", index,lock_state, number, cost);
         //std::cout << "Philosopher " << index << ", eat:" << number << " and cost:" << cost << std::endl;
         //sleep(cost);
         philosophier->package += number;
 
-        lock_state[next_index] = '0';
+        lock_state[second] = '0';
         pthread_mutex_unlock(right);
-        lock_state[index] = '0';
+
+        pthread_mutex_lock(left);
+        lock_state[first] = '0';
         pthread_mutex_unlock(left);
     }
 

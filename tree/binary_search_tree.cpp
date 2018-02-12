@@ -23,7 +23,6 @@ struct node * create_node(int key , int value)
 
 node* split_tree(node * iter) 
 {
-
     int half = node::size / 2;
 
     if (iter->parent == NULL) {

@@ -45,32 +45,35 @@ void * job(void * args)
 
     while (philosophier->package <= package_size) 
     {
-        pthread_mutex_t* left = chopsticks[index];                 
-        pthread_mutex_lock(left);
-        lock_state[index] = 'L';
+        // pthread_mutex_t* left = chopsticks[index];                 
+        // int left_state = EBUSY;
+        // do {
+        //     int left_state = pthread_mutex_trylock(left);
+        // } while (left_state == EBUSY);
+        // lock_state[index] = 'L';
 
-        int next_index = (index + 1) % person_count;
-        pthread_mutex_t * right = chopsticks[next_index];
-        int right_state = pthread_mutex_trylock(right);
-        if (right_state == EBUSY)
-        {
-            lock_state[index] = '0';
-            pthread_mutex_unlock(left);
-            continue;
-        }
-        lock_state[next_index] = 'L';
+        // int next_index = (index + 1) % person_count;
+        // pthread_mutex_t * right = chopsticks[next_index];
+        // int right_state = pthread_mutex_trylock(right);
+        // if (right_state == EBUSY)
+        // {
+        //     lock_state[index] = '0';
+        //     pthread_mutex_unlock(left);
+        //     continue;
+        // }
+        // lock_state[next_index] = 'L';
 
-        int number = 1;
-        int cost = 0;
+         int number = 1;
+        // int cost = 0;
         //printf("Philosopher:%d, state:%s, eat:%d, wait:%d\n", index,lock_state, number, cost);
         //std::cout << "Philosopher " << index << ", eat:" << number << " and cost:" << cost << std::endl;
         //sleep(cost);
         philosophier->package += number;
 
-        lock_state[next_index] = '0';
-        pthread_mutex_unlock(right);
-        lock_state[index] = '0';
-        pthread_mutex_unlock(left);
+        // lock_state[next_index] = '0';
+        // pthread_mutex_unlock(right);
+        // lock_state[index] = '0';
+        // pthread_mutex_unlock(left);
     }
 
     if (philosophier->package > package_size) {
