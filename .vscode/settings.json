@@ -41,7 +41,8 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "array": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "cstddef": "cpp"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }
