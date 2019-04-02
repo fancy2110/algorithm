@@ -38,8 +38,13 @@ struct item
 
 char maze[10][10] = {'X'};
 struct item test[] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+struct item door = {10, 10};
 
 using namespace std;
+
+int distance(int x, int y) {
+    return abs(x - door.x) + abs (y - door.y);
+} 
 
 bool find_path(int x, int y, int time)
 {
@@ -48,6 +53,10 @@ bool find_path(int x, int y, int time)
     if (time == 0)
     {
         return maze[x][y] == DOOR;
+    }
+
+    if (distance(x, y) > time) {
+        return false;
     }
 
     bool ret = false;
@@ -103,6 +112,11 @@ int main(int argc, char const *argv[])
                 {
                     start_x = row;
                     start_y = line;
+                }
+
+                if (maze[row][line] == DOOR) {
+                    door.x = row;
+                    door.y = line;
                 }
 
                 row++;
