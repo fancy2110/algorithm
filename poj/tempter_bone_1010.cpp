@@ -4,15 +4,18 @@
 
 /*
 test case 
-4 4 5
+4 4 9
 S.X.
 ..X.
 ..XD
 ....
-3 4 5
+3 4 6
 S.X.
 ..X.
 ...D
+2 4 7
+S..D
+....
 0 0 0
 
 */
@@ -30,11 +33,11 @@ struct item
     int y;
 };
 
-#define DOOR  'D'
-#define EMPTY  '.'
-#define DESTORY  '-'
-#define WALL  'X'
-#define START  'S'
+#define DOOR 'D'
+#define EMPTY '.'
+#define DESTORY '-'
+#define WALL 'X'
+#define START 'S'
 
 char maze[10][10] = {'X'};
 struct item test[] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
@@ -42,20 +45,23 @@ struct item door = {10, 10};
 
 using namespace std;
 
-int distance(int x, int y) {
-    return abs(x - door.x) + abs (y - door.y);
-} 
+int distance(int x, int y)
+{
+    return abs(x - door.x) + abs(y - door.y);
+}
 
 bool find_path(int x, int y, int time)
 {
-    // cout << "move to x:" << x << ", y:" << y << ", t:" << time << endl;
 
-    if (time == 0)
+    if (maze[x][y] == DOOR)
     {
-        return maze[x][y] == DOOR;
+        return time == 0;
     }
 
-    if (distance(x, y) > time) {
+    int min_length = distance(x, y);
+    // cout << "move to x:" << x << ", y:" << y << ", t:" << time << ", min_length:" << min_length << ", holder:" << maze[x][y] << endl;
+    if (time < 0 || min_length > time)
+    {
         return false;
     }
 
@@ -64,10 +70,17 @@ bool find_path(int x, int y, int time)
     {
         struct item &op = test[i];
         if (maze[x + op.x][y + op.y] == EMPTY || maze[x + op.x][y + op.y] == DOOR)
-        { //move to left
-            maze[x][y] = DESTORY;
+        { //move to next
+            if (maze[x][y] == EMPTY)
+            {
+                maze[x][y] = DESTORY;
+            }
+
             ret = find_path(x + op.x, y + op.y, time - 1);
-            maze[x][y] = EMPTY;
+            if (maze[x][y] == DESTORY)
+            {
+                maze[x][y] = EMPTY;
+            }
         }
 
         if (ret)
@@ -114,7 +127,8 @@ int main(int argc, char const *argv[])
                     start_y = line;
                 }
 
-                if (maze[row][line] == DOOR) {
+                if (maze[row][line] == DOOR)
+                {
                     door.x = row;
                     door.y = line;
                 }
@@ -124,10 +138,19 @@ int main(int argc, char const *argv[])
             line++;
         }
 
-        bool ret = find_path(start_x, start_y, t);
-        if (ret) {
+        int min_length = distance(start_x, start_y);
+        bool ret = false;
+        if (t >= min_length && (t - min_length) % 2 == 0)
+        {
+            ret = find_path(start_x, start_y, t);
+        }
+
+        if (ret)
+        {
             cout << "YES" << endl;
-        } else {
+        }
+        else
+        {
             cout << "No" << endl;
         }
     } while (true);
