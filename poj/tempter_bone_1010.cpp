@@ -13,9 +13,14 @@ S.X.
 S.X.
 ..X.
 ...D
-2 4 7
-S..D
+7 4 17
+Sx.D
 ....
+X..X
+X...
+X.X.
+X.X.
+X...
 0 0 0
 
 */
@@ -69,18 +74,21 @@ bool find_path(int x, int y, int time)
     for (size_t i = 0; i < 4; i++)
     {
         struct item &op = test[i];
-        if (maze[x + op.x][y + op.y] == EMPTY || maze[x + op.x][y + op.y] == DOOR)
+        int new_x = x + op.x;
+        int new_y = y + op.y;
+        if (maze[new_x][new_y] == EMPTY)
         { //move to next
-            if (maze[x][y] == EMPTY)
-            {
-                maze[x][y] = DESTORY;
-            }
-
-            ret = find_path(x + op.x, y + op.y, time - 1);
-            if (maze[x][y] == DESTORY)
-            {
-                maze[x][y] = EMPTY;
-            }
+            maze[x][y] = DESTORY;
+            ret = find_path(new_x, new_y, time - 1);
+            maze[x][y] = EMPTY;
+        }
+        else if (maze[new_x][new_y] == DOOR)
+        {
+            ret = find_path(new_x, new_y, time - 1);
+        }
+        else if (maze[new_x][new_y] == WALL)
+        {
+            continue;
         }
 
         if (ret)
@@ -142,6 +150,7 @@ int main(int argc, char const *argv[])
         bool ret = false;
         if (t >= min_length && (t - min_length) % 2 == 0)
         {
+            maze[start_x][start_y] = EMPTY;
             ret = find_path(start_x, start_y, t);
         }
 
