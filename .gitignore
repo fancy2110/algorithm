@@ -1,6 +1,6 @@
 *.out
 *.zip
 .vscode/*
-rust/target/*
+rust/*/target/*
 rust/helloword
 
