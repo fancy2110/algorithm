@@ -22,48 +22,70 @@
  * 7
 */
 #include <iostream>
+#include <stdlib.h>
+#include <cstring>
 
 struct room
 {
+    //bug count
     int count = 0;
+    //brain possiblity
     int percent = 0;
+    //
+    bool isOcupy = false;
 };
+
+#define DEBUG false
 
 #define EMPTY 0
 #define OCUPY 1
+#define MAX_TROOPERS = 100
+#define RATIO = 20
+#define MAX_ROOM = 100
 
 int m, n = 0;
 struct room nodes[101];
 int tunnels[101][101] = {0};
 int p[20000 + 1] = {0};
-int r_flag[101] = {EMPTY};
 
 using namespace std;
 
 void get_posibility(int start, int troopers)
 {
-    cout << "start:" << start << ", troopers:" << troopers << endl;
-    for (int i = 1; i <= 100; i++)
+    if (troopers == 0)
+        return;
+
+    struct room &item = nodes[start];
+    if (item.isOcupy) //已经被占领了
+        return;
+
+    if (DEBUG)
+        cout << "start:" << start << ", troopers:" << troopers << endl;
+    item.isOcupy = true;
+    int cost = 20;
+    if (item.count != 0)
+        cost = item.count;
+    int left_troopers = troopers - cost;
+    int last_p = p[left_troopers];
+    int new_p = p[troopers] + item.percent;
+    p[left_troopers] = new_p; //非负数，可以直接覆盖，一定比旧值要大
+
+    for (int i = 1; i <= n; i++)
     {
-        // cout << "point(" << start << "," << i << "): " << tunnels[start][i] << ", flag:" << r_flag[i] << endl;
-        if (tunnels[start][i] == 1 && r_flag[i] == EMPTY)
-        {
-            struct room &item = nodes[i];
-            if (item.count < troopers)
-            {
-                int last_p = p[troopers - item.count];
-                int new_p = p[troopers] + item.percent;
-                if (new_p > last_p)
-                {
-                    p[troopers - item.count] = new_p;
-                }
+        if (DEBUG)
+            cout << "tunnel(" << start << "," << i << "): " << tunnels[start][i] << endl;
+        if (tunnels[start][i] == 0) //没有通道
+            continue;
 
-                r_flag[i] = OCUPY;
+        if (item.count > troopers) //剩余的兵力已经不够
+            continue;
 
-                get_posibility(i, troopers - item.count);
-            }
-        }
+        if (DEBUG)
+            cout << "room[" << i << "] isOcupy:" << item.isOcupy << ", count:" << item.count << ", posibility:" << item.percent << endl;
+
+        get_posibility(i, left_troopers);
     }
+    item.isOcupy = false;
 }
 
 int main(int argc, char const *argv[])
@@ -72,7 +94,9 @@ int main(int argc, char const *argv[])
     while (true)
     {
         cin >> n >> m;
-        cout << "n:" << n << ", m:" << m << endl;
+        if (DEBUG)
+            cout << "n:" << n << ", m:" << m << endl;
+
         if (n < 0 && m < 0)
             break;
 
@@ -80,6 +104,7 @@ int main(int argc, char const *argv[])
         while (i <= n)
         {
             cin >> nodes[i].count >> nodes[i].percent;
+            nodes[i].isOcupy = false;
             i++;
         }
 
@@ -89,21 +114,29 @@ int main(int argc, char const *argv[])
         {
             int x, y = 0;
             cin >> x >> y;
-            cout << "x:" << x << ", y:" << y << endl;
             tunnels[x][y] = 1;
+            tunnels[y][x] = 1;
             i++;
         }
 
-        memset(r_flag, EMPTY, sizeof(r_flag));
         memset(p, 0, sizeof(p));
 
-        get_posibility(1, m * 20);
-        for (size_t i = 0; i < 100; i++)
+        int total_trooper = m * 20;
+        get_posibility(1, total_trooper);
+
+        for (size_t i = 0; i < 20 * m + 1; i++)
         {
             if (p[i] > 0)
             {
-                cout << p[i] << endl;
-                break;
+                if (DEBUG)
+                {
+                    cout << "i:" << i << ", percent:" << p[i] << endl;
+                }
+                else
+                {
+                    cout << p[i] << endl;
+                    break;
+                }
             }
         }
     }
