@@ -3,19 +3,46 @@
  * 
  * input :
  *  
- * 5 10
- * 50 10
- * 40 10
- * 40 20
- * 65 30
- * 70 30
- * 1 2
- * 1 3
- * 2 4
- * 2 5
- * 1 1
- * 20 7
- * -1 -1
+ 5 10
+ 50 10
+ 40 10
+ 40 20
+ 65 30
+ 70 30
+ 1 2
+ 1 3
+ 2 4
+ 2 5
+ 1 1
+ 20 7
+ 8 2
+ 0 0
+ 0 9
+ 0 8
+ 0 4
+ 0 7
+ 0 3
+ 0 2
+ 0 1
+ 1 2
+ 1 3
+ 2 4
+ 2 5
+ 4 6
+ 6 7
+ 7 8
+ 5 2
+ 0 1
+ 0 1
+ 0 5
+ 0 1
+ 0 2
+ 1 2
+ 1 3
+ 2 4
+ 2 5
+ -1 -1
+
  * 
  * output: 
  * 50
@@ -35,7 +62,7 @@ struct room
     bool isOcupy = false;
 };
 
-#define DEBUG false
+#define DEBUG true
 
 #define EMPTY 0
 #define OCUPY 1
@@ -46,29 +73,24 @@ struct room
 int m, n = 0;
 struct room nodes[101];
 int tunnels[101][101] = {0};
-int p[20000 + 1] = {0};
+int p[100 + 1] = {0};
 
 using namespace std;
 
-void get_posibility(int start, int troopers)
+void try_ocupy(int start, int troopers, int cost, int percent)
 {
-    if (troopers == 0)
-        return;
+    int last_cost = m - troopers;
+    int new_cost = last_cost + cost;
+    if (cost > 0)
+    {
+        int last_p = p[last_cost];
+        int new_p = last_cost + percent;
+        if (new_p > last_p)
+            p[new_cost] = new_p; //非负数，可以直接覆盖，一定比旧值要大
 
-    struct room &item = nodes[start];
-    if (item.isOcupy) //已经被占领了
-        return;
-
-    if (DEBUG)
-        cout << "start:" << start << ", troopers:" << troopers << endl;
-    item.isOcupy = true;
-    int cost = 20;
-    if (item.count != 0)
-        cost = item.count;
-    int left_troopers = troopers - cost;
-    int last_p = p[left_troopers];
-    int new_p = p[troopers] + item.percent;
-    p[left_troopers] = new_p; //非负数，可以直接覆盖，一定比旧值要大
+        if (DEBUG)
+            cout << "start:" << start << ", last_cost:" << last_cost << ", last_p:" << last_p << endl;
+    }
 
     for (int i = 1; i <= n; i++)
     {
@@ -77,14 +99,42 @@ void get_posibility(int start, int troopers)
         if (tunnels[start][i] == 0) //没有通道
             continue;
 
-        if (item.count > troopers) //剩余的兵力已经不够
-            continue;
-
-        if (DEBUG)
-            cout << "room[" << i << "] isOcupy:" << item.isOcupy << ", count:" << item.count << ", posibility:" << item.percent << endl;
-
-        get_posibility(i, left_troopers);
+        get_posibility(i, m - new_cost);
     }
+}
+
+void get_posibility(int start, int troopers)
+{
+    if (troopers == 0)
+        return;
+
+    struct room &item = nodes[start];
+    if (DEBUG)
+        cout << "room[" << start << "] isOcupy:" << item.isOcupy << ", count:" << item.count << ", posibility:" << item.percent << endl;
+    if (item.isOcupy) //已经被占领了
+        return;
+
+    if (item.count > troopers) //已经没有足够兵力了
+        return;
+
+    item.isOcupy = true;
+    int cost = 0;
+    if (item.count != 0)
+    {
+        int mod_left = item.count % 20;
+        cost = item.count / 20;
+        if (mod_left > 0)
+        {
+            cost++;
+        }
+        try_ocupy(start, troopers, cost, item.percent);
+    }
+    else if (item.percent > 0)
+    {
+        try_ocupy(start, troopers, 0, item.percent);
+        try_ocupy(start, troopers, 1, item.percent);
+    }
+
     item.isOcupy = false;
 }
 
@@ -121,23 +171,21 @@ int main(int argc, char const *argv[])
 
         memset(p, 0, sizeof(p));
 
-        int total_trooper = m * 20;
+        int total_trooper = m;
         get_posibility(1, total_trooper);
 
-        for (size_t i = 0; i < 20 * m + 1; i++)
+        int max = 0;
+        int position = 0;
+        for (size_t i = 0; i < m + 1; i++)
         {
-            if (p[i] > 0)
+            if (DEBUG)
+                cout << "i:" << i << ", percent:" << p[i] << endl;
+            if (p[i] > max)
             {
-                if (DEBUG)
-                {
-                    cout << "i:" << i << ", percent:" << p[i] << endl;
-                }
-                else
-                {
-                    cout << p[i] << endl;
-                    break;
-                }
+                max = p[i];
+                position = i;
             }
         }
+        cout << max << endl;
     }
 }
