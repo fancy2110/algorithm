@@ -62,7 +62,7 @@ struct room
     bool isOcupy = false;
 };
 
-#define DEBUG true
+#define DEBUG false
 
 #define EMPTY 0
 #define OCUPY 1
@@ -73,51 +73,49 @@ struct room
 int m, n = 0;
 struct room nodes[101];
 int tunnels[101][101] = {0};
-int p[100 + 1] = {0};
+//为每个节点构建一个访问结果记录
+int p[100 + 1][100 + 1] = {0};
+int tmp[100 + 1] = {0};
 
 using namespace std;
+/**
+ * 返回值为剩余的兵力
+*/
+bool get_posibility(int start, int troopers);
 
-void try_ocupy(int start, int troopers, int cost, int percent)
+void print_result()
 {
-    int last_cost = m - troopers;
-    int new_cost = last_cost + cost;
-    if (cost > 0)
+    if (!DEBUG)
+        return;
+    cout << "-------------------------------" << endl;
+    for (int i = 0; i <= n; i++)
     {
-        int last_p = p[last_cost];
-        int new_p = last_cost + percent;
-        if (new_p > last_p)
-            p[new_cost] = new_p; //非负数，可以直接覆盖，一定比旧值要大
-
-        if (DEBUG)
-            cout << "start:" << start << ", last_cost:" << last_cost << ", last_p:" << last_p << endl;
+        for (int j = 0; j <= m; j++)
+        {
+            cout << p[i][j] << ",";
+        }
+        cout << endl;
     }
-
-    for (int i = 1; i <= n; i++)
-    {
-        if (DEBUG)
-            cout << "tunnel(" << start << "," << i << "): " << tunnels[start][i] << endl;
-        if (tunnels[start][i] == 0) //没有通道
-            continue;
-
-        get_posibility(i, m - new_cost);
-    }
+    cout << endl;
 }
 
-void get_posibility(int start, int troopers)
+bool get_posibility(int start, int troopers)
 {
     if (troopers == 0)
-        return;
+        return false;
 
     struct room &item = nodes[start];
     if (DEBUG)
         cout << "room[" << start << "] isOcupy:" << item.isOcupy << ", count:" << item.count << ", posibility:" << item.percent << endl;
-    if (item.isOcupy) //已经被占领了
-        return;
 
-    if (item.count > troopers) //已经没有足够兵力了
-        return;
+    if (item.isOcupy) //已经被占领了
+        return false;
+
+    if (item.count > troopers * 20) //已经没有足够兵力了
+        return false;
 
     item.isOcupy = true;
+
     int cost = 0;
     if (item.count != 0)
     {
@@ -127,15 +125,65 @@ void get_posibility(int start, int troopers)
         {
             cost++;
         }
-        try_ocupy(start, troopers, cost, item.percent);
     }
-    else if (item.percent > 0)
+
+    for (int i = cost; i <= m; i++)
     {
-        try_ocupy(start, troopers, 0, item.percent);
-        try_ocupy(start, troopers, 1, item.percent);
+        p[start][i] = item.percent;
+    }
+
+    for (size_t i = 1; i <= n; i++)
+    {
+        if (DEBUG)
+            cout << "tunnel(" << start << "," << i << "): " << tunnels[start][i] << endl;
+        if (tunnels[start][i] == 0 || i == start) //没有通道
+            continue;
+
+        int left_troopers = troopers - cost;
+        if (!get_posibility(i, left_troopers))
+            continue;
+
+        memset(tmp, 0, sizeof(tmp));
+        for (int j = cost; j <= m; j++)
+        {
+            tmp[j] = p[start][j];
+        }
+
+        if (DEBUG)
+        {
+            cout << "from " << start << " ocupy(" << i << "), cost:" << cost << ", percent :" << item.percent << endl;
+            cout << "base room: ";
+            for (size_t j = 0; j <= m; j++)
+            {
+                cout << tmp[j] << ",";
+            }
+            cout << endl;
+            cout << "copy room: ";
+            for (size_t j = 0; j <= m; j++)
+            {
+                cout << p[i][j] << ",";
+            }
+            cout << endl;
+        }
+
+        for (size_t t = cost; t <= m; t++)
+        {
+            int old_p = tmp[t];
+            for (size_t o = 1; o + t <= m; o++)
+            {
+                int new_p = old_p + p[i][o];
+                if (new_p > p[start][t + o])
+                {
+                    p[start][t + o] = new_p;
+                }
+            }
+        }
+
+        print_result();
     }
 
     item.isOcupy = false;
+    return true;
 }
 
 int main(int argc, char const *argv[])
@@ -176,16 +224,8 @@ int main(int argc, char const *argv[])
 
         int max = 0;
         int position = 0;
-        for (size_t i = 0; i < m + 1; i++)
-        {
-            if (DEBUG)
-                cout << "i:" << i << ", percent:" << p[i] << endl;
-            if (p[i] > max)
-            {
-                max = p[i];
-                position = i;
-            }
-        }
-        cout << max << endl;
+        if (DEBUG)
+            print_result();
+        cout << p[1][m] << endl;
     }
 }
