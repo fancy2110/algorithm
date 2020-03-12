@@ -6,6 +6,9 @@
 int flag[100010] = {0};
 int step, mod = 0;
 
+/***
+ * 通过比较生成对应各随机数的所需的次数得出
+*/
 bool solution_one()
 {
     int n = 0;
@@ -20,6 +23,9 @@ bool solution_one()
     return count == mod;
 }
 
+/**
+ * 通过计算两个随机数种子，最大公约数为1来判断
+*/
 bool solution_two()
 {
     int n = step;
