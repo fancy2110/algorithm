@@ -2,6 +2,6 @@
 *.zip
 *.jar
 .vscode/*
-rust/*/target/*
+rust/**/target/*
 rust/helloword
 
