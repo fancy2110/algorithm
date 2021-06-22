@@ -1,8 +1,19 @@
-use reference::add_one;
-use rand::*;
-fn main() {
-    let sceret_number = rand::thread_rng().gen_range(1, 101); 
+use std::thread;
+use std::time::Duration;
+use std::sync::mpsc;
+use std::sync::mpsc::{Sender, Receiver};
 
-    let a = add_one(sceret_number);
-    println!("origin:{}, result:{}", sceret_number, a);
+fn main() {
+    let (tx, rx) :(Sender<String>, Receiver<String>)= mpsc::channel();
+
+    let handle = thread::spawn(move || {
+        for i in 1..10 {
+            tx.send(format!("item_{}",i)).unwrap()
+        } 
+    });
+
+
+    for received in rx {
+        println!("result:{}", received);
+    }
 }
