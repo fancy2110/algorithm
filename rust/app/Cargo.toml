@@ -2,4 +2,5 @@
 members = [
   "thread",
   "reference",
+  "web_server",
 ]
