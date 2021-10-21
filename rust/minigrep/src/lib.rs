@@ -34,6 +34,11 @@ impl Config {
         let filename = args[2].clone();
 
         let case_insensitive = env::var("CASE_INSENSITIVE").is_err();
+
+        println!(
+            "arguments: targert:{}, file:{}, insensitive:{}",
+            query, filename, case_insensitive
+        );
         return Ok(Config {
             query,
             filename,
