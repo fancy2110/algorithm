@@ -37,6 +37,7 @@ impl Drop for X<'_> {
 fn test_destruct_borrow_rule() {
     let mut data = vec![1,2,3,4,5];
     let mut x = X(&data[0]);
+    Vec::new()
     
     println!("x is {:?}", x);
     drop(x);

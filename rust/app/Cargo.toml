@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "thread",
+  "learn",
   "reference",
   "web_server",
 ]
