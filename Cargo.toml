@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+
+members = [
+  "rust/guess_game",
+  "rust/hello_world",
+  "rust/variables",
+]

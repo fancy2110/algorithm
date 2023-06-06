@@ -6,7 +6,7 @@ fn main() {
     println!("Guess Game");
 
     //generate a sceret number
-    let sceret_number = rand::thread_rng().gen_range(1, 101);
+    let sceret_number = rand::thread_rng().gen_range(1..=100);
 
     loop {
         println!("Please input your guess.");

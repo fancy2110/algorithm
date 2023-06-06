@@ -3,6 +3,8 @@
 *.jar
 *.in
 .vscode/*
+.idea/
+target/
 rust/**/target/*
 rust/helloword
 
