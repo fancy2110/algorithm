@@ -1,11 +1,9 @@
 [package]
+name = "tree"
+version = "0.1.0"
 authors = ["樊溪 <fanxi.rd@bytedance.com>"]
 edition = "2018"
-name = "enum_project"
-version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-demo_macro = { path = "../demo_macro"}
-demo_strait = { path = "../demo_strait"}

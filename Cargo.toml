@@ -4,5 +4,16 @@ resolver = "2"
 members = [
   "rust/guess_game",
   "rust/hello_world",
+  "rust/retangles",
   "rust/variables",
+  "rust/enum_project",
+  "rust/minigrep",
+  "rust/demo_macro",
+  "rust/demo_strait",
+  "rust/app/learn",
+  "rust/app/reference",
+  "rust/app/thread",
+  "rust/app/web_server", 
+  "rust/list",
+  "rust/tree",
 ]

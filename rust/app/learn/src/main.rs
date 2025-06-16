@@ -1,14 +1,12 @@
 use learn::vec::Vec;
-use std::mem::{self};
 
 fn main() {
-    let mut items:Vec<usize> = Vec::new();
+    let mut items: Vec<usize> = Vec::new();
     for i in 0..20 {
-       items.push(i) 
+        items.push(i)
     }
 
-
-    let slice_items:&[usize] = &items[..];
+    let slice_items: &[usize] = &items[..];
     for elem in slice_items {
         println!("item:{}", elem);
     }
@@ -29,4 +27,6 @@ fn main() {
     }
 
     println!("after size:{}", items.len());
+
+    learn::generic::test();
 }

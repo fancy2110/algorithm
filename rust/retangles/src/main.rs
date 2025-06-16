@@ -40,6 +40,7 @@ fn main() {
     println!("Can rect hold rect1? {}", rect.can_hold(&rect1));
     println!("Can rect hold rect2? {}", rect.can_hold(&rect2));
 
+    dbg!(&rect);
     println!(
         "The area of the rectangle is {} square pixels.",
         rect.area()

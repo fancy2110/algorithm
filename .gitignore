@@ -7,4 +7,6 @@
 target/
 rust/**/target/*
 rust/helloword
+.DS_Store
+**/.DS_Store
 
