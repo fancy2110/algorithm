@@ -37,11 +37,11 @@ where
         }
     }
 
-    pub fn insert(&mut self, parent: &K, key: K, value: T) -> Result<(), String> {
+    pub fn insert(&mut self, parent: &K, key: K, value: T) -> Result<NodeRef<K, T>, String> {
         self.insert_node(parent, Node::new(key, value))
     }
 
-    pub fn insert_node(&mut self, parent: &K, value: Node<K, T>) -> Result<(), String> {
+    pub fn insert_node(&mut self, parent: &K, value: Node<K, T>) -> Result<NodeRef<K, T>, String> {
         let node_key = value.key.clone();
         let node = if let Some(parent) = self.nodes.get_mut(parent) {
             let node = {
@@ -60,7 +60,7 @@ where
 
         if let Some(node) = node {
             self.nodes.insert(node_key, node.clone());
-            Ok(())
+            Ok(node)
         } else {
             Err(format!("node not found"))
         }
@@ -91,6 +91,19 @@ where
 
     pub fn contains(&self, key: &K) -> bool {
         self.nodes.contains_key(key)
+    }
+
+    pub fn path_to_root(&self, key: &K) -> Vec<NodeRef<K, T>> {
+        let mut path = vec![];
+        let mut node = self.get_node(key);
+        while let Some(value) = node {
+            path.push(value.clone());
+            node = match &value.borrow().parent {
+                Some(parent) => Some(parent.clone()),
+                _ => break,
+            }
+        }
+        path
     }
 
     pub fn get_node(&self, key: &K) -> Option<NodeRef<K, T>> {

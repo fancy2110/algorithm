@@ -80,24 +80,12 @@ where
         self.parent.as_ref().map(|item| item.clone())
     }
 
-    pub fn update<'a, F>(&mut self, mode: UpdateMode, mut modify: F)
+    pub fn update<'a, F>(&mut self, mut modify: F)
     where
-        F: FnMut(&mut Node<K, T>) -> bool,
+        F: FnMut(&mut T),
     {
-        modify(self);
-
-        match mode {
-            UpdateMode::Child => return,
-            UpdateMode::Root => {
-                let iter = RootIter::<K, T> {
-                    node: self.parent.clone(),
-                };
-
-                for item in iter {
-                    modify(item.borrow_mut().deref_mut());
-                }
-            }
-        }
+        let value = &mut self.value;
+        modify(value);
     }
 }
 

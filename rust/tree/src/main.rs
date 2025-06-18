@@ -8,13 +8,23 @@ mod tree;
 struct File {
     path: PathBuf,
     name: String,
+    pub size: usize,
 }
 
 impl File {
+    fn new_with_size(path: PathBuf, name: &str, size: usize) -> File {
+        File {
+            path: path,
+            name: name.to_string(),
+            size: size,
+        }
+    }
+
     fn new(path: PathBuf, name: &str) -> File {
         File {
             path: path,
             name: name.to_string(),
+            size: 0,
         }
     }
 }
@@ -37,7 +47,7 @@ fn main() {
 mod tests {
     use std::env::var;
 
-    use crate::node::Node;
+    use crate::node::{Node, UpdateMode};
 
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
@@ -52,7 +62,7 @@ mod tests {
     fn create_multi_layer_tree() -> Tree<PathBuf, File> {
         let mut tree = create_tree();
         let var_dir = PathBuf::from("/var");
-        tree.insert(
+        let _ = tree.insert(
             &PathBuf::from("/"),
             var_dir.clone(),
             File::new(var_dir.clone(), "/var"),
@@ -135,6 +145,35 @@ mod tests {
             }
         } else {
             assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_tree_update_node() {
+        let mut tree: Tree<PathBuf, File> = create_tree();
+
+        let mut parent_key = PathBuf::from("/");
+        for path in vec!["var", "log", "app", "tmp", "cache", "log.txt"] {
+            let key = PathBuf::from(path);
+            let value = File::new_with_size(key.clone(), path, 10);
+            let node = Node::new(key.clone(), value);
+            if let Ok(node) = tree.insert_node(&parent_key, node) {
+                let new_value = node.borrow().get_value().size;
+                let mut item = node.borrow().get_parent();
+                while let Some(parent) = item {
+                    let mut value = parent.borrow_mut();
+                    value.update(|node| node.size += new_value);
+                    item = value.get_parent();
+                }
+            }
+            parent_key = key;
+        }
+
+        if let Some(root) = &tree.root {
+            let root_size = root.borrow().get_value().size;
+            assert_eq!(root_size, 60);
+        } else {
+            assert!(false);
         }
     }
 }
