@@ -153,7 +153,7 @@ mod tests {
         let mut tree: Tree<PathBuf, File> = create_tree();
 
         let mut parent_key = PathBuf::from("/");
-        for path in vec!["var", "log", "app", "tmp", "cache", "log.txt"] {
+        for path in &["var", "log", "app", "tmp", "cache", "log.txt"] {
             let key = PathBuf::from(path);
             let value = File::new_with_size(key.clone(), path, 10);
             let node = Node::new(key.clone(), value);
